@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Timetable</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary-color: rgba(25, 25, 112, 0.8);
+            --secondary-color: rgba(65, 105, 225, 0.6);
+            --text-color: #f0f0f0;
+            --highlight-color: rgba(100, 149, 237, 0.9);
+            --glass-blur: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: var(--text-color);
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #ccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .timetable {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: var(--primary-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        tr:hover {
+            background: var(--secondary-color);
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+
+        .session {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: var(--highlight-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .theory {
+            color: #7fffd4;
+        }
+
+        .practical {
+            color: #ffa07a;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .floating-bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            th, td {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .timetable {
+                border-radius: 15px;
+            }
+
+            .session {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            header {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+        }
+        
+        .important-note {
+            background: rgba(255, 215, 0, 0.15);
+            border-left: 4px solid gold;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-bubbles" id="bubbles"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Exam Timetable</h1>
+            <p class="subtitle">Academic Session 2025</p>
+        </header>
+
+        <div class="important-note">
+            <p>Students registered for appearing in Practical/Lab courses other than the BLIS Programme are advised to contact their Regional Centre for venue and schedule of exams.</p>
+        </div>
+
+        <div class="timetable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date of Exam</th>
+                        <th>Session</th>
+                        <th>Course Code</th>
+                        <th>Component</th>
+                        <th>Schedule</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-06-19</td>
+                        <td><span class="session">Evening Slot</span></td>
+                        <td>MCS201</td>
+                        <td class="theory">THEORY</td>
+                        <td>2:00 PM - 5:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>2025-06-20</td>
+                        <td><span class="session">Evening Slot</span></td>
+                        <td>MCS202</td>
+                        <td class="theory">THEORY</td>
+                        <td>2:00 PM - 5:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>2025-06-21</td>
+                        <td><span class="session">Evening Slot</span></td>
+                        <td>MCS203</td>
+                        <td class="theory">THEORY</td>
+                        <td>2:00 PM - 5:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>2025-06-30</td>
+                        <td><span class="session">Evening Slot</span></td>
+                        <td>FEG2</td>
+                        <td class="theory">THEORY</td>
+                        <td>2:00 PM - 5:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>MCSL204</td>
+                        <td class="practical">PRACTICAL</td>
+                        <td>**</td>
+                    </tr>
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>MCSL205</td>
+                        <td class="practical">PRACTICAL</td>
+                        <td>**</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Note: ** Practical exam schedule will be announced separately by the department.</p>
+        </div>
+    </div>
+
+    <script>
+        // Create floating bubbles
+        const bubblesContainer = document.getElementById('bubbles');
+        for (let i = 0; i < 20; i++) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            
+            const size = Math.random() * 150 + 50;
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100 + 100;
+            const duration = Math.random() * 30 + 30;
+            const delay = Math.random() * -30;
+            
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${posX}%`;
+            bubble.style.top = `${posY}%`;
+            bubble.style.animationDuration = `${duration}s`;
+            bubble.style.animationDelay = `${delay}s`;
+            
+            bubblesContainer.appendChild(bubble);
+        }
+
+        // GSAP animations
+        gsap.from("header", {
+            duration: 1.5,
+            y: -50,
+            opacity: 0,
+            ease: "power3.out"
+        });
+
+        gsap.from(".important-note", {
+            duration: 1.2,
+            x: -50,
+            opacity: 0,
+            delay: 0.2,
+            ease: "back.out(1.7)"
+        });
+
+        gsap.from(".timetable", {
+            duration: 1.2,
+            y: 50,
+            opacity: 0,
+            delay: 0.4,
+            ease: "back.out(1.7)"
+        });
+
+        gsap.from("tr", {
+            duration: 0.8,
+            x: -20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.6,
+            ease: "power2.out"
+        });
+
+        gsap.from(".footer", {
+            duration: 1,
+            y: 30,
+            opacity: 0,
+            delay: 1,
+            ease: "elastic.out(1, 0.5)"
+        });
+
+        // Hover effect for table rows
+        const rows = document.querySelectorAll("tr");
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                gsap.to(row, {
+                    duration: 0.3,
+                    scale: 1.01,
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+                    ease: "power2.out"
+                });
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                gsap.to(row, {
+                    duration: 0.3,
+                    scale: 1,
+                    boxShadow: "none",
+                    ease: "power2.out"
+                });
+            });
+        });
+    </script>
+</body>
+</html>
